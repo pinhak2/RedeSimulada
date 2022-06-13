@@ -53,7 +53,13 @@ public class RouterManager implements Runnable {
 
                 String message = new String(packet.getData()).trim();
 
-                // Veja se a mensagem é para esta maquina
+                if (message.equals("1111")) {
+                    DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length,
+                            ip_destino_config, port);
+                    socket.send(sendPacket);
+                }
+
+                // Veja se a mensagem é para esta
                 if (verifyRecipient(message)) {
                     System.out.println("Está maquina é o computador destino!");
 
