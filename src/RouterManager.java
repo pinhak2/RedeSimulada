@@ -26,6 +26,9 @@ public class RouterManager implements Runnable {
             socket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
             socket.setBroadcast(true);
 
+            // Fazer o timeout baseado no config
+            int timeout_time = Integer.parseInt(props.getProperty("tempo_token")) * 1000;
+            socket.setSoTimeout(timeout_time);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -36,10 +39,6 @@ public class RouterManager implements Runnable {
             try {
                 InetAddress ip_destino_config;
                 ip_destino_config = InetAddress.getByName(props.getProperty("ip_destino_do_token"));
-
-                // Fazer o timeout baseado no config
-                int timeout_time = Integer.parseInt(props.getProperty("tempo_token")) * 1000;
-                socket.setSoTimeout(timeout_time);
 
                 // Receber pacote
                 byte[] recvBuf = new byte[1024];
