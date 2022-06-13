@@ -57,6 +57,7 @@ public class RouterManager implements Runnable {
                     DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length,
                             ip_destino_config, port);
                     socket.send(sendPacket);
+                    return;
                 }
 
                 // Veja se a mensagem é para esta
