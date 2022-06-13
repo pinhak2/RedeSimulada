@@ -49,11 +49,13 @@ public class RouterManager {
                     // Adiciona a porta na tabela de roteamento
                     this.router.addPort(rt);
                     // Inicia thread para recener mensagens
-                    new UnicastReceiver(this.router, this.router.getSockets().get(Integer.parseInt(destinationPort))).start();
+                    new UnicastReceiver(this.router, this.router.getSockets().get(Integer.parseInt(destinationPort)))
+                            .start();
                     // Inicia thread para enviar a tabela de roteamento para os roteadores vizinhos
                     new Rip(this.router).start();
-                    // Inicia a thread para printar no console a tabela de roteamento a cada 10 segundos
-//                    new PrintRoutingTable(this.router).start();
+                    // Inicia a thread para printar no console a tabela de roteamento a cada 10
+                    // segundos
+                    // new PrintRoutingTable(this.router).start();
                     break;
                 case "2":
                     System.out.print("Informe a porta de destino: ");
@@ -62,8 +64,10 @@ public class RouterManager {
                     String exitPort = this.scanner.nextLine();
                     System.out.print("Informe a porta local: ");
                     String localPort = this.scanner.nextLine();
-                    // Cria um novo elemento da tabela de roteamento que possui a porta de destino, metrica, porta
-                    // de saida e a porta local do roteador que possui a comunicação com essa porta de saída
+                    // Cria um novo elemento da tabela de roteamento que possui a porta de destino,
+                    // metrica, porta
+                    // de saida e a porta local do roteador que possui a comunicação com essa porta
+                    // de saída
                     rt = new RoutingTable(destinationPort, 1, exitPort, localPort);
                     // Adiciona a porta na tabela de roteamento
                     this.router.addPort(rt);
@@ -84,8 +88,9 @@ public class RouterManager {
                         // cria pacote com o dado, o endereço do server e porta do servidor
                         sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
                         System.out.println(this.router.getIPAddress());
-                        System.out.println(String.format(" Enviando mensagem para o destino %s pela porta %s", destinationPort, port));
-                        //envia o pacote
+                        System.out.println(String.format(" Enviando mensagem para o destino %s pela porta %s",
+                                destinationPort, port));
+                        // envia o pacote
                         socket = this.router.getSocketByPort(port);
                         if (socket != null) {
 
@@ -111,17 +116,22 @@ public class RouterManager {
                     byte[] destinationPortBytes = (destinationPort + " ").getBytes();
                     byte[] fileNameBytes = fileName.getBytes();
                     // Monta os dados a serem enviados
-                    sendData = new byte[commandBytes.length + destinationPortBytes.length + fileNameBytes.length + fileBytes.length];
+                    sendData = new byte[commandBytes.length + destinationPortBytes.length + fileNameBytes.length
+                            + fileBytes.length];
                     System.arraycopy(commandBytes, 0, sendData, 0, commandBytes.length);
-                    System.arraycopy(destinationPortBytes, 0, sendData, commandBytes.length, destinationPortBytes.length);
-                    System.arraycopy(fileNameBytes, 0, sendData, commandBytes.length + destinationPortBytes.length, fileNameBytes.length);
-                    System.arraycopy(fileBytes, 0, sendData, commandBytes.length + destinationPortBytes.length + fileNameBytes.length, fileBytes.length);
+                    System.arraycopy(destinationPortBytes, 0, sendData, commandBytes.length,
+                            destinationPortBytes.length);
+                    System.arraycopy(fileNameBytes, 0, sendData, commandBytes.length + destinationPortBytes.length,
+                            fileNameBytes.length);
+                    System.arraycopy(fileBytes, 0, sendData,
+                            commandBytes.length + destinationPortBytes.length + fileNameBytes.length, fileBytes.length);
                     port = this.router.getExitPort(destinationPort);
 
                     // cria pacote com o dado, o endereço do roteador e a porta de destino
                     sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
-                    System.out.println(String.format(" Enviando imagem para o destino %s pela porta %s", destinationPort, port));
-                    //envia o pacote
+                    System.out.println(
+                            String.format(" Enviando imagem para o destino %s pela porta %s", destinationPort, port));
+                    // envia o pacote
                     socket = this.router.getSocketByPort(port);
                     if (socket != null) {
                         socket.send(sendPacket);
@@ -130,7 +140,8 @@ public class RouterManager {
                 case "5":
                     System.out.println("\n\n##################################");
                     for (RoutingTable routingTable : this.router.getRoutingTable()) {
-                        System.out.println(routingTable.getDestinationPort() + " " + routingTable.getMetric() + " " + routingTable.getExitPort());
+                        System.out.println(routingTable.getDestinationPort() + " " + routingTable.getMetric() + " "
+                                + routingTable.getExitPort());
                     }
                     System.out.println("##################################");
             }
