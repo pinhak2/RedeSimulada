@@ -74,6 +74,7 @@ public class RouterManager implements Runnable {
                     System.out.println(
                             getClass().getName() + " >>>Pacote enviado para: "
                                     + ip_destino_config.toString());
+                    return;
                 }
                 // Verificar se a mensagem foi enviada por está maquina
                 if (verifySender(message)) {
@@ -85,6 +86,7 @@ public class RouterManager implements Runnable {
                         DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length,
                                 ip_destino_config, port);
                         socket.send(sendPacket);
+                        return;
                     }
                 }
             } catch (Exception e) {
