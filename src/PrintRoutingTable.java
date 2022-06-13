@@ -1,5 +1,3 @@
-package com.redes;
-
 public class PrintRoutingTable extends Thread {
 
     private Router router;

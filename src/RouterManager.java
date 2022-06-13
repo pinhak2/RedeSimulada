@@ -1,5 +1,3 @@
-package com.redes;
-
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
@@ -21,6 +19,7 @@ public class RouterManager {
 
     public void run() throws IOException {
         while (true) {
+            System.out.println("==================================================================");
             System.out.println("Digite 1 para configurar uma porta local do roteador.");
             System.out.println("Digite 2 para configurar uma porta vizinha do roteador.");
             System.out.println("Digite 3 para enviar uma mensagem para um roteador.");
@@ -28,7 +27,7 @@ public class RouterManager {
             System.out.println("Digite 5 para visualizar a tabela de roteamento do roteador.");
             System.out.print("Comando: ");
             String sentence = this.scanner.nextLine();
-
+            System.out.println("");
             byte[] sendData = null;
             Integer port = null;
             RoutingTable rt = null;
@@ -84,11 +83,15 @@ public class RouterManager {
                     if (port != null) {
                         // cria pacote com o dado, o endereço do server e porta do servidor
                         sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
+                        System.out.println(this.router.getIPAddress());
                         System.out.println(String.format(" Enviando mensagem para o destino %s pela porta %s", destinationPort, port));
                         //envia o pacote
                         socket = this.router.getSocketByPort(port);
                         if (socket != null) {
+
+                            System.out.println("socket nao é null");
                             socket.send(sendPacket);
+
                         }
                     }
                     break;

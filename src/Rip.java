@@ -1,5 +1,3 @@
-package com.redes;
-
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

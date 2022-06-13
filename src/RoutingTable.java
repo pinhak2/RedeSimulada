@@ -1,5 +1,3 @@
-package com.redes;
-
 import java.io.Serializable;
 
 public class RoutingTable implements Serializable {

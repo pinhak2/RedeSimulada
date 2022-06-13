@@ -1,5 +1,3 @@
-package com.redes;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 public class KeepAlive extends Thread{
