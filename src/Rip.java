@@ -19,8 +19,7 @@ public class Rip extends Thread {
             // com o roteador
             List<RoutingTable> directRouters = this.router.getDirectPorts();
             // Obtém o socket correto com base na configuração
-            try (DatagramSocket socket = this.router.getSockets()
-                    .get(Integer.parseInt(router.getLocalPorts().get(0).toString()))) {
+            try (DatagramSocket socket = new DatagramSocket()) {
                 // Se possuir elementos com ligação direta
                 if (!directRouters.isEmpty()) {
                     // Serializa a tabela de roteamento inteira
@@ -39,6 +38,7 @@ public class Rip extends Thread {
                             // Monta o pacote
                             DatagramPacket packet = new DatagramPacket(listData, listData.length,
                                     this.router.getIPAddress(), Integer.parseInt(router.getExitPort()));
+                            System.out.println(this.router.getIPAddress());
                             // Envia o pacote
                             socket.send(packet);
                         } catch (Exception e) {
