@@ -37,14 +37,14 @@ public class RouterManager implements Runnable {
                 InetAddress ip_destino_config;
                 ip_destino_config = InetAddress.getByName(props.getProperty("ip_destino_do_token"));
 
+                // Fazer o timeout baseado no config
+                int timeout_time = Integer.parseInt(props.getProperty("tempo_token")) * 1000;
+                socket.setSoTimeout(timeout_time);
+
                 // Receber pacote
                 byte[] recvBuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
                 socket.receive(packet);
-
-                // Fazer o timeout baseado no config
-                int timeout_time = Integer.parseInt(props.getProperty("tempo_token")) * 1000;
-                socket.setSoTimeout(timeout_time);
 
                 // Pacote recebido
                 System.out.println(getClass().getName() + " >>>Pacote descoberto! Veio de: "
@@ -53,6 +53,7 @@ public class RouterManager implements Runnable {
 
                 String message = new String(packet.getData()).trim();
 
+                // Repassa se for o token
                 if (message.equals("1111")) {
                     DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length,
                             ip_destino_config, port);
