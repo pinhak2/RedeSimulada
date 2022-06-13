@@ -18,7 +18,9 @@ public class Rip extends Thread {
             // Obtém somente os elementos da tabela de roteamento que possuem ligação direta
             // com o roteador
             List<RoutingTable> directRouters = this.router.getDirectPorts();
-            try {
+            // Obtém o socket correto com base na configuração
+            try (DatagramSocket socket = this.router.getSockets()
+                    .get(Integer.parseInt(router.getLocalPorts().get(0).toString()))) {
                 // Se possuir elementos com ligação direta
                 if (!directRouters.isEmpty()) {
                     // Serializa a tabela de roteamento inteira
@@ -33,12 +35,10 @@ public class Rip extends Thread {
                     // Percorre todas as ligações diretas configuradas no roteador
                     directRouters.stream().forEach(router -> {
                         System.out.print("");
-                        // Monta o pacote
-                        DatagramPacket packet = new DatagramPacket(listData, listData.length,
-                                this.router.getIPAddress(), Integer.parseInt(router.getExitPort()));
-                        // Obtém o socket correto com base na configuração
-                        DatagramSocket socket = this.router.getSockets().get(Integer.parseInt(router.getLocalPort()));
                         try {
+                            // Monta o pacote
+                            DatagramPacket packet = new DatagramPacket(listData, listData.length,
+                                    this.router.getIPAddress(), Integer.parseInt(router.getExitPort()));
                             // Envia o pacote
                             socket.send(packet);
                         } catch (Exception e) {
@@ -47,9 +47,9 @@ public class Rip extends Thread {
                         }
                     });
                 }
-                Thread.sleep(20000);
+                Thread.sleep(100000);
             } catch (Exception e) {
-                // System.err.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         }
     }

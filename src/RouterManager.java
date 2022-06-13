@@ -1,14 +1,13 @@
 import java.io.IOException;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.zip.CRC32;
 
 public class RouterManager {
 
     private Router router;
     private final Scanner scanner;
+    private String holder = "maquinanaoexiste";
 
     public RouterManager() throws IOException {
         // declara socket cliente e obtem endereço IP do servidor com o DNS
@@ -23,8 +22,7 @@ public class RouterManager {
             System.out.println("Digite 1 para configurar uma porta local do roteador.");
             System.out.println("Digite 2 para configurar uma porta vizinha do roteador.");
             System.out.println("Digite 3 para enviar uma mensagem para um roteador.");
-            System.out.println("Digite 4 para enviar um arquivo para um roteador.");
-            System.out.println("Digite 5 para visualizar a tabela de roteamento do roteador.");
+            System.out.println("Digite 4 para visualizar a tabela de roteamento do roteador.");
             System.out.print("Comando: ");
             String sentence = this.scanner.nextLine();
             System.out.println("");
@@ -48,14 +46,12 @@ public class RouterManager {
                     this.router.addSocket(Integer.parseInt(destinationPort));
                     // Adiciona a porta na tabela de roteamento
                     this.router.addPort(rt);
-                    // Inicia thread para recener mensagens
+                    // Inicia thread para receber mensagens
                     new UnicastReceiver(this.router, this.router.getSockets().get(Integer.parseInt(destinationPort)))
                             .start();
                     // Inicia thread para enviar a tabela de roteamento para os roteadores vizinhos
                     new Rip(this.router).start();
-                    // Inicia a thread para printar no console a tabela de roteamento a cada 10
-                    // segundos
-                    // new PrintRoutingTable(this.router).start();
+
                     break;
                 case "2":
                     System.out.print("Informe a porta de destino: ");
@@ -81,9 +77,13 @@ public class RouterManager {
                     destinationPort = this.scanner.nextLine();
                     System.out.print("Informe a mensagem: ");
                     String message = this.scanner.nextLine();
-                    String data = "::msg " + destinationPort + " " + message;
-                    sendData = data.getBytes();
                     port = this.router.getExitPort(destinationPort);
+                    byte[] messageByte = message.getBytes();
+                    CRC32 crc32 = new CRC32();
+                    crc32.update(messageByte);
+                    String data = "2222;" + holder + ":" + port + ":" + destinationPort + ":" + crc32.getValue() + ":"
+                            + ":" + message;
+                    sendData = data.getBytes();
                     if (port != null) {
                         // cria pacote com o dado, o endereço do server e porta do servidor
                         sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
@@ -93,51 +93,11 @@ public class RouterManager {
                         // envia o pacote
                         socket = this.router.getSocketByPort(port);
                         if (socket != null) {
-
-                            System.out.println("socket nao é null");
                             socket.send(sendPacket);
-
                         }
                     }
                     break;
                 case "4":
-                    if (this.routerNotConfigured()) {
-                        System.out.println("Roteador não configurado!");
-                        continue;
-                    }
-                    System.out.print("Informe a porta do roteador de destino: ");
-                    destinationPort = this.scanner.nextLine();
-                    System.out.print("Informe o caminho para o arquivo: ");
-                    String path = this.scanner.nextLine();
-                    Path file = Paths.get(path);
-                    String fileName = Utils.formatFileName(file.getFileName().toString()) + " ";
-                    byte[] fileBytes = Files.readAllBytes(file);
-                    byte[] commandBytes = "::file ".getBytes();
-                    byte[] destinationPortBytes = (destinationPort + " ").getBytes();
-                    byte[] fileNameBytes = fileName.getBytes();
-                    // Monta os dados a serem enviados
-                    sendData = new byte[commandBytes.length + destinationPortBytes.length + fileNameBytes.length
-                            + fileBytes.length];
-                    System.arraycopy(commandBytes, 0, sendData, 0, commandBytes.length);
-                    System.arraycopy(destinationPortBytes, 0, sendData, commandBytes.length,
-                            destinationPortBytes.length);
-                    System.arraycopy(fileNameBytes, 0, sendData, commandBytes.length + destinationPortBytes.length,
-                            fileNameBytes.length);
-                    System.arraycopy(fileBytes, 0, sendData,
-                            commandBytes.length + destinationPortBytes.length + fileNameBytes.length, fileBytes.length);
-                    port = this.router.getExitPort(destinationPort);
-
-                    // cria pacote com o dado, o endereço do roteador e a porta de destino
-                    sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
-                    System.out.println(
-                            String.format(" Enviando imagem para o destino %s pela porta %s", destinationPort, port));
-                    // envia o pacote
-                    socket = this.router.getSocketByPort(port);
-                    if (socket != null) {
-                        socket.send(sendPacket);
-                    }
-                    break;
-                case "5":
                     System.out.println("\n\n##################################");
                     for (RoutingTable routingTable : this.router.getRoutingTable()) {
                         System.out.println(routingTable.getDestinationPort() + " " + routingTable.getMetric() + " "
