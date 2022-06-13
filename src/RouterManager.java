@@ -1,5 +1,7 @@
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.*;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.zip.CRC32;
 
@@ -7,16 +9,36 @@ public class RouterManager {
 
     private Router router;
     private final Scanner scanner;
-    private String holder = "maquinanaoexiste";
+    private String mark = "maquinanaoexiste";
+    private Properties props;
 
-    public RouterManager() throws IOException {
+    public RouterManager(Properties props) throws UnknownHostException {
         // declara socket cliente e obtem endereço IP do servidor com o DNS
         this.router = new Router(InetAddress.getByName("localhost"));
         // cria o stream do teclado
         this.scanner = new Scanner(System.in);
+        this.props = props;
     }
 
     public void run() throws IOException {
+        String ip_destino_do_token, apelido_da_maquina_atual, tempo_token;
+
+        // Divisoria para ficar mais facil a visualização
+        System.out.println("==================================================================");
+
+        // Coleta de dados
+        System.out.print("Informe o endereço IP da máquina que está a sua direita: ");
+        ip_destino_do_token = this.scanner.nextLine();
+
+        System.out.print("Informe um apelido: ");
+        apelido_da_maquina_atual = this.scanner.nextLine();
+
+        System.out.print("Informe o tempo do token e dos dados: ");
+        tempo_token = this.scanner.nextLine();
+
+        // Chamar metodo de salvar os dados
+        updateConfigFile(ip_destino_do_token, apelido_da_maquina_atual, tempo_token);
+
         while (true) {
             System.out.println("==================================================================");
             System.out.println("Digite 1 para configurar uma porta local do roteador.");
@@ -69,7 +91,7 @@ public class RouterManager {
                     this.router.addPort(rt);
                     break;
                 case "3":
-                    if (this.routerNotConfigured()) {
+                    if (routerNotConfigured()) {
                         System.out.println("Roteador não configurado!");
                         continue;
                     }
@@ -81,7 +103,7 @@ public class RouterManager {
                     byte[] messageByte = message.getBytes();
                     CRC32 crc32 = new CRC32();
                     crc32.update(messageByte);
-                    String data = "2222;" + holder + ":" + port + ":" + destinationPort + ":" + crc32.getValue() + ":"
+                    String data = "2222;" + mark + ":" + port + ":" + destinationPort + ":" + crc32.getValue() + ":"
                             + ":" + message;
                     sendData = data.getBytes();
                     if (port != null) {
@@ -110,5 +132,22 @@ public class RouterManager {
 
     private boolean routerNotConfigured() {
         return this.router.getSockets().isEmpty();
+    }
+
+    private void updateConfigFile(String ip_destino_do_token, String apelido_da_maquina_atual, String tempo_token)
+            throws IOException {
+        // Abrir o arquivo de configuração para edição
+        FileOutputStream out = new FileOutputStream("config.properties");
+
+        // Alterar os valores correspondentes no arquivo
+        props.setProperty("ip_destino_do_token", ip_destino_do_token);
+        props.setProperty("apelido_da_maquina_atual", apelido_da_maquina_atual);
+        props.setProperty("tempo_token", tempo_token);
+
+        // Salva as mudanças feitas sem comentarios adicionais
+        props.store(out, null);
+
+        // Fecha o editor
+        out.close();
     }
 }

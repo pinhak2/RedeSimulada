@@ -17,7 +17,7 @@ public class UnicastReceiver extends Thread {
     }
 
     public void run() {
-        while(true) {
+        while (true) {
             try {
                 byte[] buf = new byte[MAX_BUF];
                 DatagramPacket receivedPacket = new DatagramPacket(buf, buf.length);
@@ -42,8 +42,9 @@ public class UnicastReceiver extends Thread {
                         byte[] sendData = send.getBytes();
                         Integer port = this.router.getExitPort(destinationPort);
                         // cria pacote com o dado, o endereço do roteador e a porta de destino
-                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
-                        //envia o pacote
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+                                this.router.getIPAddress(), port);
+                        // envia o pacote
                         DatagramSocket socket = this.router.getSocketByPort(port);
                         System.out.println("Enviando para o destino pela porta " + socket.getLocalPort());
                         if (socket != null) {
@@ -63,14 +64,16 @@ public class UnicastReceiver extends Thread {
                         byte[] fileBytes = new byte[MAX_BUF];
                         int positionA = 0;
                         int positionB = 0;
-                        // pega os bytes da imagem que estao logo apos dos bytes de "::file " e do nome do arquivo
+                        // pega os bytes da imagem que estao logo apos dos bytes de "::file " e do nome
+                        // do arquivo
                         for (byte b : data) {
                             if (positionB > 8 + destinationPort.length() + fileName.length()) {
                                 fileBytes[positionA++] = b;
                             }
                             positionB++;
                         }
-                        // cria diretorio para a porta do roteador caso nao exista e grava o arquivo na pasta
+                        // cria diretorio para a porta do roteador caso nao exista e grava o arquivo na
+                        // pasta
                         String dir = "src/com/redes/files/" + destinationPort;
                         Utils.createFile(fileBytes, dir, fileName);
                         System.out.println("Arquivo criado no diretório " + dir);
@@ -80,9 +83,10 @@ public class UnicastReceiver extends Thread {
                         // Busca para qual porta deve ser enviado o pacote
                         Integer port = this.router.getExitPort(destinationPort);
                         // cria pacote com o dado, o endereço do roteador e a porta de destino
-                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, this.router.getIPAddress(), port);
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+                                this.router.getIPAddress(), port);
                         System.out.println("Enviando para o destino pela porta " + this.datagramSocket.getLocalPort());
-                        //envia o pacote
+                        // envia o pacote
                         DatagramSocket socket = this.router.getSocketByPort(port);
                         if (socket != null) {
                             socket.send(sendPacket);
@@ -91,6 +95,7 @@ public class UnicastReceiver extends Thread {
                 } else {
                     // Deserializa tabela de roteamento
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(receivedPacket.getData()));
+                    @SuppressWarnings("unchecked")
                     List<RoutingTable> list = (List<RoutingTable>) ois.readObject();
                     // Atualiza tabela de roteamento
                     this.router.updateRoutingTable(receivedPacket.getPort(), datagramSocket.getLocalPort(), list);
