@@ -5,7 +5,6 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            // new RouterManager(prop).run();
             new Setup(prop).run();
             if (Boolean.valueOf(prop.getProperty("token")))
                 new Sender(prop).run();
