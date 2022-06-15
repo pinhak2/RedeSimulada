@@ -54,10 +54,9 @@ public class RouterManager implements Runnable {
 
                 // Repassa se for o token
                 if (message.equals("1111")) {
-                    DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length,
+                    DatagramPacket sendPacket = new DatagramPacket(packet.getAddress(), packet.getAddress().length,
                             ip_destino_config, port);
                     socket.send(sendPacket);
-                    return;
                 }
 
                 // Veja se a mensagem é para esta
@@ -74,7 +73,6 @@ public class RouterManager implements Runnable {
                     System.out.println(
                             getClass().getName() + " >>>Pacote enviado para: "
                                     + ip_destino_config.toString());
-                    return;
                 }
                 // Verificar se a mensagem foi enviada por está maquina
                 if (verifySender(message)) {
@@ -86,7 +84,6 @@ public class RouterManager implements Runnable {
                         DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.getBytes().length,
                                 ip_destino_config, port);
                         socket.send(sendPacket);
-                        return;
                     }
                 }
             } catch (Exception e) {
